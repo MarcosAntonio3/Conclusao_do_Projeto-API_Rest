@@ -1,7 +1,3 @@
-# Aluno: Marcos Antonio de Oliveira Medeiros
-# Professor: Lucas Tavares de Lima
-
-
 # Aplicação Web Node.js (API Rest)
 
 ### Descrição
