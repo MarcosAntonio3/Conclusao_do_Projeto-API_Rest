@@ -1,21 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { Pool } = require('pg');
 
 // Aqui a gente configura a conexão com o banco de dados PostgreSQL
-const pool = new Pool({
-  user: process.env.DB_USER,      // usuário do banco
-  host: process.env.DB_HOST,      // endereço do banco
-  database: process.env.DB_NAME,  // nome do banco
-  password: process.env.DB_PASSWORD, // senha do banco
-  port: process.env.DB_PORT,      // porta do banco
-});
+const db = require('../db/connect');
 
 // Rota GET para listar todos os clientes
 router.get('/', async (req, res) => {
   try {
     // Faz a consulta para pegar todos os clientes na tabela "cliente"
-    const result = await pool.query('SELECT * FROM cliente');
+    const result = await db.query('SELECT * FROM cliente');
     // Retorna a lista de clientes em formato JSON com status 200 (sucesso)
     res.status(200).json(result.rows);
   } catch (error) {
@@ -30,7 +23,7 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params; // Pega o ID da URL
   try {
     // Busca o cliente que tem o ID informado
-    const result = await pool.query('SELECT * FROM cliente WHERE id = $1', [id]);
+    const result = await db.query('SELECT * FROM cliente WHERE id = $1', [id]);
 
     // Se não encontrar nenhum cliente com esse ID, retorna erro 404 (não encontrado)
     if (result.rows.length === 0) {
@@ -64,7 +57,7 @@ router.post('/', async (req, res) => {
 
   try {
     // Executa o comando no banco com os dados do cliente
-    const result = await pool.query(sql, [nome, email, telefone, endereco, cidade, uf]);
+    const result = await db.query(sql, [nome, email, telefone, endereco, cidade, uf]);
     // Retorna o cliente criado com status 201 (criado)
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -94,7 +87,7 @@ router.put('/:id', async (req, res) => {
 
   try {
     // Executa o comando no banco para atualizar o cliente
-    const result = await pool.query(sql, [nome, email, telefone, endereco, cidade, uf, id]);
+    const result = await db.query(sql, [nome, email, telefone, endereco, cidade, uf, id]);
 
     // Se não achar cliente para atualizar, retorna erro 404
     if (result.rows.length === 0) {
@@ -123,7 +116,7 @@ router.delete('/:id', async (req, res) => {
 
   try {
     // Executa a exclusão no banco
-    const result = await pool.query(sql, [id]);
+    const result = await db.query(sql, [id]);
 
     // Se não achar o cliente para excluir, retorna erro 404
     if (result.rows.length === 0) {

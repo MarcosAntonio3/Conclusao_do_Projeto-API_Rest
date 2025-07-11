@@ -1,21 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { Pool } = require('pg');
 
 // Aqui a gente configura a conexão com o banco de dados PostgreSQL
-const pool = new Pool({
-  user: process.env.DB_USER,     // usuário do banco (configurado no ambiente)
-  host: process.env.DB_HOST,     // endereço do servidor do banco
-  database: process.env.DB_NAME, // nome do banco de dados
-  password: process.env.DB_PASSWORD, // senha do banco
-  port: process.env.DB_PORT,     // porta do banco
-});
+const db = require('../db/connect');
 
 // Rota GET para pegar todos os produtos
 router.get('/', async (req, res) => {
   try {
     // Faz a consulta no banco para pegar todos os produtos
-    const result = await pool.query('SELECT * FROM produto');
+    const result = await db.query('SELECT * FROM produto');
     // Envia o resultado em JSON para o cliente
     res.status(200).json(result.rows);
   } catch (error) {
@@ -30,7 +23,7 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params; // Pega o ID que veio na URL
   try {
     // Consulta no banco o produto com o ID passado
-    const result = await pool.query('SELECT * FROM produto WHERE id = $1', [id]);
+    const result = await db.query('SELECT * FROM produto WHERE id = $1', [id]);
 
     // Se não achar nenhum produto, avisa que não encontrou
     if (result.rows.length === 0) {
@@ -64,7 +57,7 @@ router.post('/', async (req, res) => {
 
   try {
     // Executa o comando no banco e pega o produto inserido
-    const result = await pool.query(sql, [nome, marca, preco, peso]);
+    const result = await db.query(sql, [nome, marca, preco, peso]);
     // Envia o produto criado para o cliente
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -123,7 +116,7 @@ router.delete('/:id', async (req, res) => {
 
   try {
     // Executa a exclusão no banco
-    const result = await pool.query(sql, [id]);
+    const result = await db.query(sql, [id]);
 
     // Se não achar o produto para excluir, avisa que não encontrou
     if (result.rows.length === 0) {
